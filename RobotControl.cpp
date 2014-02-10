@@ -12,6 +12,11 @@ RobotControl::RobotControl() : drive(2, 11, 4, 5) {
 	
 	table = NetworkTable::GetTable("robo");  //Sets up table called "robo"
 	
+	JagControl::config(shooter_1, 6, false);
+	JagControl::config(shooter_2, 7, false);
+	JagControl::config(shooter_3, 8, false);
+	JagControl::config(shooter_4, 9, false);
+	/*
 	shooter_1 = new CANJaguar(6); 		//set shooter_1 to CANJaguar 6
 	shooter_2 = new CANJaguar(7);		//set shooter_2 to CANJaguar 7mko0-0-----
 	shooter_3 = new CANJaguar(8); 		//set shooter_3 to CANJaguar 8
@@ -20,6 +25,7 @@ RobotControl::RobotControl() : drive(2, 11, 4, 5) {
 	shooter_2->ConfigNeutralMode(CANJaguar::kNeutralMode_Coast);		//set shooter_2's assigned jaguar to coast
 	shooter_3->ConfigNeutralMode(CANJaguar::kNeutralMode_Coast);		//set shooter_3's assigned jaguar to coast
 	shooter_4->ConfigNeutralMode(CANJaguar::kNeutralMode_Coast);		//set shooter_4's assigned jaguar to coast
+	*/
 	
 	prodR = new Relay(1);		//set prodR (right shooting mechanism) to Relay(1)
 	prodL = new Relay(2);		//set prodL (left shooting mechanism) to Relay(2)

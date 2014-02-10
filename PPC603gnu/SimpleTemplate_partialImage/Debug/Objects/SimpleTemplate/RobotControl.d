@@ -385,6 +385,7 @@ SimpleTemplate_partialImage/Debug/Objects/SimpleTemplate/RobotControl.o:  \
   C:/WindRiver/vxworks-6.3/target/h/WPILib/Vision/ColorImage.h \
   C:/WindRiver/vxworks-6.3/target/h/WPILib/WPIErrors.h \
   C:/WindRiver/workspace/SimpleTemplate/MecanumDrive.h \
+  C:/WindRiver/workspace/SimpleTemplate/JagControl.h \
   C:/WindRiver/vxworks-6.3/target/h/WPILib/CANJaguar.h \
   C:/WindRiver/vxworks-6.3/target/h/math.h \
   c:/windriver/gnu/3.4.4-vxworks-6.3/x86-win32/lib/gcc/../../../x86-win32/include/c++/3.4.4/iostream.h \
@@ -1160,6 +1161,8 @@ C:/WindRiver/vxworks-6.3/target/h/WPILib/Vision/ColorImage.h:
 C:/WindRiver/vxworks-6.3/target/h/WPILib/WPIErrors.h:
 
 C:/WindRiver/workspace/SimpleTemplate/MecanumDrive.h:
+
+C:/WindRiver/workspace/SimpleTemplate/JagControl.h:
 
 C:/WindRiver/vxworks-6.3/target/h/WPILib/CANJaguar.h:
 

@@ -1,5 +1,5 @@
 #include "WPILib.h"
-#include "JagControl"
+#include "JagControl.h"
 #include <CANJaguar.h>
 #include <math.h>
 

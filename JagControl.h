@@ -3,17 +3,14 @@
 
 class JagControl {
 public:
-	enum STOP_CTRL {BREAK=CANJaguar::kNeutralMode_Break, 
-			COAST=CANJaguar::kNeutralMode_Coast};
-
-	static config(CANJaguar *&jag, int id, STOP_CTRL stop=BREAK, 
+	static void config(CANJaguar *&jag, int id, bool brake=true, 
 			bool encoder=false, int encRevs=360, 
 			bool PID=false, int p=0, int i=0, int d=0) {
 
 		if(encoder) {
 			jag = new CANJaguar(id, CANJaguar::kSpeed);
 			jag->ConfigEncoderCodesPerRev(encRevs);
-			jag->SetSpeedReference(CANJaguar::kSpeecRef_QuadEncoder);
+			jag->SetSpeedReference(CANJaguar::kSpeedRef_QuadEncoder);
 		}
 		else
 			jag = new CANJaguar(id);
@@ -21,6 +18,6 @@ public:
 		if(PID)
 			jag->SetPID(p, i, d);
 		
-		jag->ConfigNeutralMode(stop);
+		jag->ConfigNeutralMode(brake ? CANJaguar::kNeutralMode_Brake : CANJaguar::kNeutralMode_Coast);
 	}
 };
