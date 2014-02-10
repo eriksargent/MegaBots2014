@@ -3,10 +3,14 @@
 
 //Constructor. Takes the ID's of the Jaguars, and 2,3,4,5 is the default
 MecanumDrive::MecanumDrive(int fr = 2, int fl = 3, int rr = 4, int rl = 5) {
+	JagControl::config(f_right, fr);
+	JagControl::config(f_left, fl);
+	JagControl::config(r_right, rr);
+	JagControl::config(r_left, rl);
 	/*f_right = new CANJaguar(fr, CANJaguar::kSpeed);
 	f_left = new CANJaguar(fl, CANJaguar::kSpeed);
 	r_right = new CANJaguar(rr, CANJaguar::kSpeed);
-	r_left = new CANJaguar(rl, CANJaguar::kSpeed);*/
+	r_left = new CANJaguar(rl, CANJaguar::kSpeed);
 	
 	f_right = new CANJaguar(fr);
 	f_left = new CANJaguar(fl);
@@ -18,7 +22,7 @@ MecanumDrive::MecanumDrive(int fr = 2, int fl = 3, int rr = 4, int rl = 5) {
 	r_right->ConfigNeutralMode(CANJaguar::kNeutralMode_Brake);
 	r_left->ConfigNeutralMode(CANJaguar::kNeutralMode_Brake);
 
-	/*f_right->ConfigEncoderCodesPerRev(360);
+	f_right->ConfigEncoderCodesPerRev(360);
 	f_right->SetSpeedReference(CANJaguar::kSpeedRef_QuadEncoder);
 
 	f_left->ConfigEncoderCodesPerRev(360);

@@ -1,10 +1,11 @@
 #include "WPILib.h"
+#include "JagControl"
 #include <CANJaguar.h>
 #include <math.h>
 
 #define pi 3.14159
 
-class MecanumDrive{
+class MecanumDrive {
 private:
 	//Four CANJaguars for the four motors on the drive train
 	CANJaguar *f_right; 
@@ -15,7 +16,7 @@ private:
 	void setDriveA(double dir, double pwr, double t);
 	void setMotors(double fl, double fr, double rl, double rr);
 
-	public:
+public:
 	MecanumDrive(int fr, int fl, int rr, int rl);
 	void set(double x, double y, double turn);
 	void enableControl();
