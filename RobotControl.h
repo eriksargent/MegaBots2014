@@ -10,6 +10,7 @@ private:
 	float cogArea, sonarR, sonarL, multiPotValue, shooterThrottle;
 	bool upLimit, lowLimit, upTripped, align;
 	void logs();
+	void setShooters(double setPoint);
 	
 	MecanumDrive drive;
 	

@@ -108,6 +108,14 @@ void RobotControl::AutonomousPeriodic() {		//define function AutonomousPeriodic
 }
 
 
+void RobotControl::setShooters(double setPoint) {
+	shooter_1->Set(setPoint);
+	shooter_2->Set(setPoint);
+	shooter_3->Set(-setPoint);
+	shooter_4->Set(-setPoint);
+}
+
+
 void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	double throttle = ((control->GetRawAxis(4) - 1) / -2);		//create variable throttle and set to value of throttle on joystick with bounds of 0-1
 	//sonar alignment
@@ -143,30 +151,30 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	}
 	lowLimit = (multiPotValue <= .25);
 	if (upTripped) {
-		shooter_1->Set(-.2);
-		shooter_2->Set(-.2);
-		shooter_3->Set(.2);
-		shooter_4->Set(.2);
+		setShooters(-.2);
 	}
 	else {
 	//set value of all motors to throttle on notKaden for shooter speed control
 		if (control->GetRawButton(1)) {
-			shooter_1->Set((((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
-			shooter_2->Set((((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
-			shooter_3->Set(-(((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
-			shooter_4->Set(-(((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
+			setShooters((((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
+			// shooter_1->Set((((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
+			// shooter_2->Set((((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
+			// shooter_3->Set(-(((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
+			// shooter_4->Set(-(((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
 		}
 		else if (control->GetRawButton(2)) {
-			shooter_1->Set(-.1666*lowLimit);
-			shooter_2->Set(-.1666*lowLimit);
-			shooter_3->Set(.1666*lowLimit);
-			shooter_4->Set(.1666*lowLimit);
+			setShooters(-.1666*lowLimit);
+			// shooter_1->Set(-.1666*lowLimit);
+			// shooter_2->Set(-.1666*lowLimit);
+			// shooter_3->Set(.1666*lowLimit);
+			// shooter_4->Set(.1666*lowLimit);
 		}
 		else {
-			shooter_1->Set(0);
-			shooter_2->Set(0);
-			shooter_3->Set(0);
-			shooter_4->Set(0);
+			setShooters(-.1666*lowLimit);
+			// shooter_1->Set(0);
+			// shooter_2->Set(0);
+			// shooter_3->Set(0);
+			// shooter_4->Set(0);
 		}
 	}
 	//cattle prod code
