@@ -22,18 +22,6 @@ RobotControl::RobotControl() : drive(2, 11, 4, 5) {
 	JagControl::config(shooter_4, 9, false);
 	prodR = new Jaguar(5);
 	prodL = new Jaguar(6);
-	/*
-	shooter_1 = new CANJaguar(6); 		//set shooter_1 to CANJaguar 6
-	shooter_2 = new CANJaguar(7);		//set shooter_2 to CANJaguar 7mko0-0-----
-	shooter_3 = new CANJaguar(8); 		//set shooter_3 to CANJaguar 8
-	shooter_4 = new CANJaguar(9);		//set shooter_4 to CANJaguar 9
-	shooter_1->ConfigNeutralMode(CANJaguar::kNeutralMode_Coast);		//set shooter_1's assigned jaguar to coast
-	shooter_2->ConfigNeutralMode(CANJaguar::kNeutralMode_Coast);		//set shooter_2's assigned jaguar to coast
-	shooter_3->ConfigNeutralMode(CANJaguar::kNeutralMode_Coast);		//set shooter_3's assigned jaguar to coast
-	shooter_4->ConfigNeutralMode(CANJaguar::kNeutralMode_Coast);		//set shooter_4's assigned jaguar to coast
-	*/
-	
-	
 }
 
 
@@ -123,67 +111,87 @@ void RobotControl::setShooters(double setPoint) {
 
 
 void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
-	throttle = ((control->GetRawAxis(4) - 1) / -2);		//create variable throttle and set to value of throttle on joystick with bounds of 0-1
-	//sonar alignment
-	if (control->GetRawButton(10)) {		//if button twelve on kaden = 1
-		align = true;						//align is true
+	//Drive variables
+	
+	//Throttle is used to adjust the driving speed
+	throttle = ((control->GetRawAxis(4) - 1) / -2);
+	//Magnitude to move in x-direction
+	double xMove = control->GetRawAxis(2) * throttle;
+	//Magnitude to move in y-direction
+	double yMove = control->GetRawAxis(1) * throttle;
+
+	/*
+	* Drive train control
+	* Supports sonar alignment with the wall
+	* If button 10 is being pressed, disable joystick turning, 
+	* and control turn from ultrasonic sensor.
+	* Otherwise, drive normally from the joystick
+	*/
+
+	if (control->GetRawButton(10)) {
+		//Right is farther from the wall. Turn left
+		if(sonarR > sonarL + 0.0098)
+			drive.set(xMove, yMove, -0.25);
+
+		//Left is farther from the wall. Turn right
+		else if(sonarL > sonarR + 0.0098)
+			drive.set(xMove, yMove, 0.25);
+
+		//Otherwize, drive without turn
+		else
+			drive.set(xMove, yMove, 0);
 	}
-	if (control->GetRawButton(9)) {		//if button 11 on kaden = 1
-		align = false;						//align is false
-	}
-	if (align) {							//if value of align is true
-		if(sonarR > sonarL + .0098) {		//if sonarR is greater than sonarL + .0098
-			drive.set(0,0,-.25);			//turn robot clockwise
-		}
-		else if(sonarL > sonarR + .0098) {	//if sonarL is greater than sonarR + .0098
-			drive.set(0,0,.25);				//turn robot counterclockwise
-		}
-		else {								//otherwise
-			align = false;					//set align to false
-		}
-	}
-	else {									//otherwise
-		//move drive train
-		drive.set(control->GetRawAxis(2) * throttle, control->GetRawAxis(1) * throttle,  control->GetRawAxis(3) * throttle);
-	}
-	//simplified shooting code
-	if (multiPotValue >= 2-((notKaden->GetRawAxis(3)-1)/-2)) {
+	//move drive train normally
+	else
+		drive.set(xMove, yMove,  control->GetRawAxis(3) * throttle);
+
+
+	/*
+	* Throwing control
+	* Control position of the throwing arms with a potentiometer
+	* When throwing, stop the arms at a specific point based on the speed
+	* and lower the arms slowly until they reach the bottom
+	* The speed of the throwers is changed with the notKaden joystick throttle
+	*/
+
+	//Upper limit
+	if (multiPotValue >= 2 - ((notKaden->GetRawAxis(3) - 1)/-2)) {
 		upLimit = 0;
 		upTripped = 1;
 	}
+	//lower limit
 	else if (multiPotValue <= .3) {
 		upLimit = 1;
 		upTripped = 0;
 	}
+
 	lowLimit = (multiPotValue <= .3);
-	if (upTripped) {
+	//Lower the arms back down
+	if (upTripped)
 		setShooters(-.2);
-	}
 	else {
-	//set value of all motors to throttle on notKaden for shooter speed control
-		if (control->GetRawButton(1)) {
-			setShooters((((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
-			// shooter_1->Set((((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
-			// shooter_2->Set((((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
-			// shooter_3->Set(-(((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
-			// shooter_4->Set(-(((notKaden->GetRawAxis(3))-1)/-2)*upLimit);
-		}
-		else if (control->GetRawButton(2)) {
-			setShooters(-.1666*lowLimit);
-			// shooter_1->Set(-.1666*lowLimit);
-			// shooter_2->Set(-.1666*lowLimit);
-			// shooter_3->Set(.1666*lowLimit);
-			// shooter_4->Set(.1666*lowLimit);
-		}
-		else {
+		//Throw
+		if (control->GetRawButton(1))
+			setShooters(((notKaden->GetRawAxis(3) - 1)/-2) * upLimit);
+
+		//retract
+		else if (control->GetRawButton(2))
+			setShooters(-0.2);
+
+		//stop
+		else
 			setShooters(0);
-			// shooter_1->Set(0);
-			// shooter_2->Set(0);
-			// shooter_3->Set(0);
-			// shooter_4->Set(0);
-		}
 	}
-	//cattle prod code
+
+
+
+	/*
+	* Collector Control
+	* Drives the collectors with the speed of the main throttle
+	* Buttons 11 and 12 select which direction to turn them
+	* The two arms spin in opposite directions to pull the ball in, or push it out
+	*/
+
 	if (control->GetRawButton(11)) {
 		prodR->Set(throttle);
 		prodL->Set(-throttle);
@@ -197,7 +205,13 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 		prodL->Set(0);
 	}
 	
-	//pnuematics code
+
+	/*
+	* Pneumatics Control
+	* Button 6 pushes the cylindars out
+	* Button 7 pulls them back in
+	*/
+
 	if(notKaden->GetRawButton(6)) {
 		prodSR->Set(true);
 		prodSL->Set(true);
@@ -206,6 +220,8 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 		prodSR->Set(false);
 		prodSL->Set(false);
 	}
+
+
 	logs();
 }
 
