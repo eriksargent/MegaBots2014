@@ -10,12 +10,18 @@ RobotControl::RobotControl() : drive(2, 11, 4, 5) {
 	ultra2 = new AnalogChannel(2);		//US pointer 2
 	multiPot = new AnalogChannel(3);		//Potentiometer pointer
 	
-	table = NetworkTable::GetTable("robo");  //Sets up table called "robo"
+	compressor = new Compressor(1,3);
+	prodSR = new Solenoid(1);
+	prodSL = new Solenoid(2);
+	
+	table = NetworkTable::GetTable("robo");  //Sets up network table called "robo"
 	
 	JagControl::config(shooter_1, 6, false);
 	JagControl::config(shooter_2, 7, false);
 	JagControl::config(shooter_3, 8, false);
 	JagControl::config(shooter_4, 9, false);
+	prodR = new Jaguar(5);
+	prodL = new Jaguar(6);
 	/*
 	shooter_1 = new CANJaguar(6); 		//set shooter_1 to CANJaguar 6
 	shooter_2 = new CANJaguar(7);		//set shooter_2 to CANJaguar 7mko0-0-----
@@ -27,8 +33,7 @@ RobotControl::RobotControl() : drive(2, 11, 4, 5) {
 	shooter_4->ConfigNeutralMode(CANJaguar::kNeutralMode_Coast);		//set shooter_4's assigned jaguar to coast
 	*/
 	
-	prodR = new Relay(1);		//set prodR (right shooting mechanism) to Relay(1)
-	prodL = new Relay(2);		//set prodL (left shooting mechanism) to Relay(2)
+	
 }
 
 
@@ -85,6 +90,7 @@ void RobotControl::TeleopInit() {		//define function TeleopInit
 
 void RobotControl::DisabledPeriodic() {  //define function DisabledPeriodic
 	logs();
+	compressor->Start();
 	//cerr<<"Ultrasonic1 ="<<sonarR<<endl;		//display value of sonarR on Network Tables
 	//cerr<<"Ultrasonic2 ="<<sonarL<<endl;		//display value of sonarL on Network Tables
 	//cerr<<"Potentiometer ="<<multiPotValue<<endl;		//display value of multiPotValue on Network Tables
@@ -96,8 +102,8 @@ void RobotControl::logs() {
 	sonarL = ultra2->GetVoltage();		//set sonarL to the reading of the left ultrasonic sensor
 	shooterThrottle = (((notKaden->GetRawAxis(3))-1)/-2);
 	multiPotValue = multiPot->GetVoltage();		//set value of potentiometer variable to reading on the potentiometer
-	fprintf(stderr,"U1=%+2.5f ST=%+2.5f P=%+2.5f UpLimit=%s UpTripped=%s Align=%s\r",
-			sonarR, shooterThrottle, multiPotValue,
+	fprintf(stderr,"DT=%+2.5f ST=%+2.5f P=%+2.5f UpLimit=%s UpTripped=%s Align=%s\r",		//display a bunch of stuff
+			throttle, shooterThrottle, multiPotValue,
 			upLimit?"T":"F", upTripped?"T":"F",
 		    align?"T":"F");
 }
@@ -117,7 +123,7 @@ void RobotControl::setShooters(double setPoint) {
 
 
 void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
-	double throttle = ((control->GetRawAxis(4) - 1) / -2);		//create variable throttle and set to value of throttle on joystick with bounds of 0-1
+	throttle = ((control->GetRawAxis(4) - 1) / -2);		//create variable throttle and set to value of throttle on joystick with bounds of 0-1
 	//sonar alignment
 	if (control->GetRawButton(10)) {		//if button twelve on kaden = 1
 		align = true;						//align is true
@@ -145,11 +151,11 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 		upLimit = 0;
 		upTripped = 1;
 	}
-	else if (multiPotValue <= .25) {
+	else if (multiPotValue <= .3) {
 		upLimit = 1;
 		upTripped = 0;
 	}
-	lowLimit = (multiPotValue <= .25);
+	lowLimit = (multiPotValue <= .3);
 	if (upTripped) {
 		setShooters(-.2);
 	}
@@ -170,7 +176,7 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 			// shooter_4->Set(.1666*lowLimit);
 		}
 		else {
-			setShooters(-.1666*lowLimit);
+			setShooters(0);
 			// shooter_1->Set(0);
 			// shooter_2->Set(0);
 			// shooter_3->Set(0);
@@ -179,16 +185,26 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	}
 	//cattle prod code
 	if (control->GetRawButton(11)) {
-		prodR->Set(Relay::kForward);
-		prodL->Set(Relay::kReverse);
+		prodR->Set(throttle);
+		prodL->Set(-throttle);
 	}
 	else if (control->GetRawButton(12)) {
-		prodR->Set(Relay::kReverse);
-		prodL->Set(Relay::kForward);
+		prodR->Set(-throttle);
+		prodL->Set(throttle);
 	}
 	else {
-		prodR->Set(Relay::kOff);
-		prodL->Set(Relay::kOff);
+		prodR->Set(0);
+		prodL->Set(0);
+	}
+	
+	//pnuematics code
+	if(notKaden->GetRawButton(6)) {
+		prodSR->Set(true);
+		prodSL->Set(true);
+	}
+	if(notKaden->GetRawButton(7)) {
+		prodSR->Set(false);
+		prodSL->Set(false);
 	}
 	logs();
 }

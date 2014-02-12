@@ -7,32 +7,38 @@
 
 class RobotControl : public IterativeRobot {
 private:
-	float cogArea, sonarR, sonarL, multiPotValue, shooterThrottle;
-	bool upLimit, lowLimit, upTripped, align;
-	void logs();
-	void setShooters(double setPoint);
+	float cogArea, sonarR, sonarL, multiPotValue, shooterThrottle;		//define all these variables
+	double throttle;
+	bool upLimit, lowLimit, upTripped, align;		//and these
+	void logs();		//create function called logs
+	void setShooters(double setPoint);		//create function called setShooters and a double variable setPoint
 	
-	MecanumDrive drive;
+	MecanumDrive drive;		//define a MecanumDrive function called drive
 	
-	Joystick *control;
-	Joystick *notKaden;
+	Joystick *control;		//define a joystick called control (kaden)
+	Joystick *notKaden;		//define a joystick called notKaden
 	
-	DigitalInput *upperLimit;
-	DigitalInput *lowerLimit;
+	DigitalInput *upperLimit;		//define digital input as upperLimit
+	DigitalInput *lowerLimit;		//define digital input as lowerLimit
 	
+	Compressor *compressor;
+	Solenoid *prodSR;
+	Solenoid *prodSL;
+	
+	//define the individual Jaguars on the shooter as shooters 1, 2, 3, and 4
 	CANJaguar *shooter_1;
 	CANJaguar *shooter_2;
 	CANJaguar *shooter_3;
 	CANJaguar *shooter_4;
 	
-	Relay *prodR;
-	Relay *prodL;
-public:
-	NetworkTable *table;
-	AnalogChannel *ultra1;
-	AnalogChannel *ultra2;
-	AnalogChannel *multiPot;
-	RobotControl();
+	Jaguar *prodR;		//define prodR as a jaguar
+	Jaguar *prodL;		//define prodL as a jaguar
+public:					//create public variables/functions
+	NetworkTable *table;		//create network table called table
+	AnalogChannel *ultra1;		//create analog channel called ultra1 (Ultrasonic sensor)
+	AnalogChannel *ultra2;		//create analog channel called ultra2
+	AnalogChannel *multiPot;	//create analog channel called multiPot (Potentiometer)
+	RobotControl();				//create function called RobotControl, which is control for the robot
 	
 	//provide for initialization at robot power-on
 	void RobotInit();
@@ -58,9 +64,9 @@ public:
 	 * By default, this is synced to the driver station control packets, about 50Hz
 	*/
 
-	void DisabledPeriodic();
+	void DisabledPeriodic();		//What happens while the robot is disabled
 
-	void AutonomousPeriodic();
+	void AutonomousPeriodic();		//what happens while the robot is in autonomous mode
 
-	void TeleopPeriodic();
+	void TeleopPeriodic();		//what happens while the robot is in teleop mode
 };
