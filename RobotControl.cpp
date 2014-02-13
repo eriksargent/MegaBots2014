@@ -1,6 +1,6 @@
 #include "RobotControl.h"
 
-RobotControl::RobotControl() : drive(2, 11, 4, 5) {
+RobotControl::RobotControl() : drive(2, 3, 4, 5) {
 	//First Joystick 
 	control = new Joystick(1);		//Drive and shooting joystick
 	notKaden = new Joystick(2);		//Throttle
@@ -90,10 +90,12 @@ void RobotControl::logs() {
 	sonarL = ultra2->GetVoltage();		//set sonarL to the reading of the left ultrasonic sensor
 	shooterThrottle = (((notKaden->GetRawAxis(3))-1)/-2);
 	multiPotValue = multiPot->GetVoltage();		//set value of potentiometer variable to reading on the potentiometer
+	/*
 	fprintf(stderr,"DT=%+2.5f ST=%+2.5f P=%+2.5f UpLimit=%s UpTripped=%s Align=%s\r",		//display a bunch of stuff
 			throttle, shooterThrottle, multiPotValue,
 			upLimit?"T":"F", upTripped?"T":"F",
 		    align?"T":"F");
+	 */
 }
 
 
@@ -127,7 +129,7 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	* and control turn from ultrasonic sensor.
 	* Otherwise, drive normally from the joystick
 	*/
-
+	
 	if (control->GetRawButton(10)) {
 		//Right is farther from the wall. Turn left
 		if(sonarR > sonarL + 0.0098)
@@ -153,9 +155,16 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	* and lower the arms slowly until they reach the bottom
 	* The speed of the throwers is changed with the notKaden joystick throttle
 	*/
-
+	
+	//Drop
+	if(control->GetRawButton(3)) {
+		if(multiPotValue < 2.25)
+			setShooters(.25);
+		else
+			setShooters(0);
+	}
 	//Upper limit
-	if (multiPotValue >= 2 - ((notKaden->GetRawAxis(3) - 1)/-2)) {
+	else if (multiPotValue >= 2.1 - ((notKaden->GetRawAxis(3) - 1)/-2)) {
 		upLimit = 0;
 		upTripped = 1;
 	}
@@ -167,20 +176,22 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 
 	lowLimit = (multiPotValue <= .3);
 	//Lower the arms back down
-	if (upTripped)
-		setShooters(-.2);
-	else {
-		//Throw
-		if (control->GetRawButton(1))
-			setShooters(((notKaden->GetRawAxis(3) - 1)/-2) * upLimit);
-
-		//retract
-		else if (control->GetRawButton(2))
-			setShooters(-0.2);
-
-		//stop
-		else
-			setShooters(0);
+	if(!control->GetRawButton(3)) {
+		if (upTripped)
+			setShooters(-.2);
+		else {
+			//Throw
+			if (control->GetRawButton(1))
+				setShooters(((notKaden->GetRawAxis(3) - 1)/-2) * upLimit);
+	
+			//retract
+			else if (control->GetRawButton(2))
+				setShooters(-0.2);
+	
+			//stop
+			else
+				setShooters(0);
+		}
 	}
 
 

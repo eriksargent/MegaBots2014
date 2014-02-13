@@ -3,42 +3,10 @@
 
 //Constructor. Takes the ID's of the Jaguars, and 2,3,4,5 is the default
 MecanumDrive::MecanumDrive(int fr = 2, int fl = 3, int rr = 4, int rl = 5) {
-	JagControl::config(f_right, fr);
-	JagControl::config(f_left, fl);
-	JagControl::config(r_right, rr);
-	JagControl::config(r_left, rl);
-	/*f_right = new CANJaguar(fr, CANJaguar::kSpeed);
-	f_left = new CANJaguar(fl, CANJaguar::kSpeed);
-	r_right = new CANJaguar(rr, CANJaguar::kSpeed);
-	r_left = new CANJaguar(rl, CANJaguar::kSpeed);
-	
-	f_right = new CANJaguar(fr);
-	f_left = new CANJaguar(fl);
-	r_right = new CANJaguar(rr);
-	r_left = new CANJaguar(rl);
-
-	f_right->ConfigNeutralMode(CANJaguar::kNeutralMode_Brake); //set all Jaguars to break instead of coast
-	f_left->ConfigNeutralMode(CANJaguar::kNeutralMode_Brake);
-	r_right->ConfigNeutralMode(CANJaguar::kNeutralMode_Brake);
-	r_left->ConfigNeutralMode(CANJaguar::kNeutralMode_Brake);
-
-	f_right->ConfigEncoderCodesPerRev(360);
-	f_right->SetSpeedReference(CANJaguar::kSpeedRef_QuadEncoder);
-
-	f_left->ConfigEncoderCodesPerRev(360);
-	f_left->SetSpeedReference(CANJaguar::kSpeedRef_QuadEncoder);
-
-	r_right->ConfigEncoderCodesPerRev(360);
-	r_right->SetSpeedReference(CANJaguar::kSpeedRef_QuadEncoder);
-
-	r_left->ConfigEncoderCodesPerRev(360);
-	r_left->SetSpeedReference(CANJaguar::kSpeedRef_QuadEncoder);
-
-	f_right->SetPID(.02, 0.004, 0.0);
-	f_left->SetPID(.02, 0.004, 0.0);
-	r_right->SetPID(.02, 0.004, 0.0);
-	r_left->SetPID(.02, 0.004, 0.0);*/
-
+	JagControl::config(f_right, fr, true, true);
+	JagControl::config(f_left, fl, true, true);
+	JagControl::config(r_right, rr, true, true);
+	JagControl::config(r_left, rl, true, true);
 	disabled = true;
 }
 
@@ -70,6 +38,9 @@ void MecanumDrive::set(double x, double y, double turn) {
 	pwr = sqrt(x*x+y*y);
 	dir = atan2(y, -x)/pi*180;
 	setDriveA(dir, pwr, turn);
+	fprintf(stderr,"FR=%+2.5f FL=%+2.5f RR=%+2.5f RL=%+2.5f\r",
+				f_right->GetSpeed(), f_left->GetSpeed(),
+				r_right->GetSpeed(), r_left->GetSpeed());
 }
 
 

@@ -8,7 +8,10 @@ public:
 			bool PID=false, int p=0, int i=0, int d=0) {
 
 		if(encoder) {
-			jag = new CANJaguar(id, CANJaguar::kSpeed);
+			if(PID)
+				jag = new CANJaguar(id, CANJaguar::kSpeed);
+			else
+				jag = new CANJaguar(id);
 			jag->ConfigEncoderCodesPerRev(encRevs);
 			jag->SetSpeedReference(CANJaguar::kSpeedRef_QuadEncoder);
 		}
