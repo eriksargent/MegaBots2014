@@ -4,14 +4,17 @@
 #include "NetworkTables/NetworkTable.h"
 #include "math.h"
 #include "AnalogChannel.h"
+#include "time.h"
 
 class RobotControl : public IterativeRobot {
 private:
 	float cogArea, sonarR, sonarL, multiPotValue, shooterThrottle;		//define all these variables
-	double throttle;
-	bool upLimit, lowLimit, upTripped, align;		//and these
+	double throttle, autoTime;
+	bool upLimit, lowLimit, upTripped, align, flipDrive, flipPressed, armsUp;		//and these
 	void logs();		//create function called logs
 	void setShooters(double setPoint);		//create function called setShooters and a double variable setPoint
+	
+	time_t start;
 	
 	MecanumDrive drive;		//define a MecanumDrive function called drive
 	
@@ -31,8 +34,8 @@ private:
 	CANJaguar *shooter_3;
 	CANJaguar *shooter_4;
 	
-	Jaguar *prodR;		//define prodR as a jaguar
-	Jaguar *prodL;		//define prodL as a jaguar
+	CANJaguar *prodR;		//define prodR as a jaguar
+	CANJaguar *prodL;		//define prodL as a jaguar
 public:					//create public variables/functions
 	NetworkTable *table;		//create network table called table
 	AnalogChannel *ultra1;		//create analog channel called ultra1 (Ultrasonic sensor)

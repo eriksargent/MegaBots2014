@@ -20,8 +20,8 @@ RobotControl::RobotControl() : drive(2, 3, 4, 5) {
 	JagControl::config(shooter_2, 7, false);
 	JagControl::config(shooter_3, 8, false);
 	JagControl::config(shooter_4, 9, false);
-	prodR = new Jaguar(5);
-	prodL = new Jaguar(6);
+	JagControl::config(prodR, 12, false);
+	JagControl::config(prodL, 13, false);
 }
 
 
@@ -53,7 +53,7 @@ void RobotControl::DisabledInit() {			//define function DisabledInit
 
 //called each and every time autonomous is entered from another mode
 void RobotControl::AutonomousInit() {  //define function AutonomousInit
-
+	start = time(0);
 }
 
 
@@ -63,6 +63,8 @@ void RobotControl::TeleopInit() {		//define function TeleopInit
 	lowLimit = 1;		//set lowLimit (lower shooting limit) to 1
 	upTripped = 0;		//set upTripped (limit switch variable) to 1
 	align = false;		//set align (sonar alignment) to false
+	flipDrive = false;
+	armsUp = true;
 		
 	if(drive.disabled)		//if drive is disabled
 		drive.enableControl();		//enable drive
@@ -88,19 +90,50 @@ void RobotControl::DisabledPeriodic() {  //define function DisabledPeriodic
 void RobotControl::logs() {
 	sonarR = ultra1->GetVoltage();		//set sonarR to the reading of the right ultrasonic sensor
 	sonarL = ultra2->GetVoltage();		//set sonarL to the reading of the left ultrasonic sensor
-	shooterThrottle = (((notKaden->GetRawAxis(3))-1)/-2);
+	shooterThrottle = ((notKaden->GetRawAxis(3) - 1)/-2);
 	multiPotValue = multiPot->GetVoltage();		//set value of potentiometer variable to reading on the potentiometer
-	/*
 	fprintf(stderr,"DT=%+2.5f ST=%+2.5f P=%+2.5f UpLimit=%s UpTripped=%s Align=%s\r",		//display a bunch of stuff
 			throttle, shooterThrottle, multiPotValue,
 			upLimit?"T":"F", upTripped?"T":"F",
 		    align?"T":"F");
-	 */
 }
 
 
 void RobotControl::AutonomousPeriodic() {		//define function AutonomousPeriodic
 	logs();
+	autoTime = difftime(time(0), start);
+	if (autoTime < .75) {
+	drive.set(0 ,.5 ,0);
+	}
+	else if (autoTime > .75) {
+		drive.set(0,0,0);
+		prodSR->Set(true);
+		prodSL->Set(true);
+		prodR->Set(1);
+		prodL->Set(-1);
+		if (HotOrNot()) {
+			setShooters( 1 * upLimit);
+		}
+		else if (multiPotValue >= 1.1) {
+			upLimit = 0;
+			upTripped = 1;
+		}
+		//lower limit
+		else if (multiPotValue <= .4) {
+			upLimit = 1;
+			upTripped = 0;
+		}
+
+		lowLimit = (multiPotValue <= .4);
+		if (upTripped){
+			setShooters(-.2);
+		}
+	}
+	else if (autoTime > 1.25) {
+		prodR->Set(0);
+		prodL->Set(0);
+	}
+	
 }
 
 
@@ -113,14 +146,21 @@ void RobotControl::setShooters(double setPoint) {
 
 
 void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
+	if(control->GetRawButton(2) && !flipPressed) {
+		flipPressed = true;
+		flipDrive = !flipDrive;
+	}
+	else if(flipPressed && !control->GetRawButton(2))
+		flipPressed = false;
+		
 	//Drive variables
 	
 	//Throttle is used to adjust the driving speed
 	throttle = ((control->GetRawAxis(4) - 1) / -2);
 	//Magnitude to move in x-direction
-	double xMove = control->GetRawAxis(2) * throttle;
+	double xMove = control->GetRawAxis(2) * throttle * (flipDrive ? -1 : 1);
 	//Magnitude to move in y-direction
-	double yMove = control->GetRawAxis(1) * throttle;
+	double yMove = control->GetRawAxis(1) * throttle * (flipDrive ? -1 : 1);
 
 	/*
 	* Drive train control
@@ -157,7 +197,7 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	*/
 	
 	//Drop
-	if(control->GetRawButton(3)) {
+	if(notKaden->GetRawButton(4)) {
 		if(multiPotValue < 2.25)
 			setShooters(.25);
 		else
@@ -169,23 +209,23 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 		upTripped = 1;
 	}
 	//lower limit
-	else if (multiPotValue <= .3) {
+	else if (multiPotValue <= .4) {
 		upLimit = 1;
 		upTripped = 0;
 	}
 
-	lowLimit = (multiPotValue <= .3);
+	lowLimit = (multiPotValue <= .4);
 	//Lower the arms back down
-	if(!control->GetRawButton(3)) {
+	if(!notKaden->GetRawButton(4)) {
 		if (upTripped)
 			setShooters(-.2);
 		else {
 			//Throw
-			if (control->GetRawButton(1))
-				setShooters(((notKaden->GetRawAxis(3) - 1)/-2) * upLimit);
+			if (notKaden->GetRawButton(1))
+				setShooters(((notKaden->GetRawAxis(3) - 1)/-2) * upLimit * armsUp);
 	
 			//retract
-			else if (control->GetRawButton(2))
+			else if (notKaden->GetRawButton(5))
 				setShooters(-0.2);
 	
 			//stop
@@ -202,7 +242,10 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	* Buttons 11 and 12 select which direction to turn them
 	* The two arms spin in opposite directions to pull the ball in, or push it out
 	*/
-
+	
+	prodR->Set(-notKaden->GetRawAxis(2));
+	prodL->Set(notKaden->GetRawAxis(2));
+	/*
 	if (control->GetRawButton(11)) {
 		prodR->Set(throttle);
 		prodL->Set(-throttle);
@@ -215,7 +258,7 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 		prodR->Set(0);
 		prodL->Set(0);
 	}
-	
+	*/
 
 	/*
 	* Pneumatics Control
@@ -223,11 +266,13 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	* Button 7 pulls them back in
 	*/
 
-	if(notKaden->GetRawButton(6)) {
+	if(notKaden->GetRawButton(6) || notKaden->GetRawButton(1) || notKaden->GetRawButton(4)) {
+		armsUp = true;
 		prodSR->Set(true);
 		prodSL->Set(true);
 	}
 	if(notKaden->GetRawButton(7)) {
+		armsUp = false;
 		prodSR->Set(false);
 		prodSL->Set(false);
 	}

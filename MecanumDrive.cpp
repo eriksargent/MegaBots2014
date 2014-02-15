@@ -3,10 +3,10 @@
 
 //Constructor. Takes the ID's of the Jaguars, and 2,3,4,5 is the default
 MecanumDrive::MecanumDrive(int fr = 2, int fl = 3, int rr = 4, int rl = 5) {
-	JagControl::config(f_right, fr, true, true);
-	JagControl::config(f_left, fl, true, true);
-	JagControl::config(r_right, rr, true, true);
-	JagControl::config(r_left, rl, true, true);
+	JagControl::config(f_right, fr, true/*, true, 360, true, 0.1, 0, 0*/);
+	JagControl::config(f_left, fl, true/*, true, 360, true, 0.1, 0, 0*/);
+	JagControl::config(r_right, rr, true/*, true, 360, true, 0.1, 0, 0*/);
+	JagControl::config(r_left, rl, true/*, true, 360, true, 0.1, 0, 0*/);
 	disabled = true;
 }
 
@@ -38,9 +38,9 @@ void MecanumDrive::set(double x, double y, double turn) {
 	pwr = sqrt(x*x+y*y);
 	dir = atan2(y, -x)/pi*180;
 	setDriveA(dir, pwr, turn);
-	fprintf(stderr,"FR=%+2.5f FL=%+2.5f RR=%+2.5f RL=%+2.5f\r",
+	/*fprintf(stderr,"FR=%+2.5f FL=%+2.5f RR=%+2.5f RL=%+2.5f\r",
 				f_right->GetSpeed(), f_left->GetSpeed(),
-				r_right->GetSpeed(), r_left->GetSpeed());
+				r_right->GetSpeed(), r_left->GetSpeed());*/
 }
 
 
@@ -71,10 +71,6 @@ double MecanumDrive::limit(double d) {
 
 //Moves the motors
 void MecanumDrive::setMotors(double fl, double fr, double rl, double rr) {
-	/*f_right->Set(-fr*500);
-	f_left->Set(fl*500);
-	r_right->Set(-rr*500);
-	r_left->Set(rl*500);*/
 	f_right->Set(-fr);
 	f_left->Set(fl);
 	r_right->Set(-rr);

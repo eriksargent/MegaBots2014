@@ -5,7 +5,7 @@ class JagControl {
 public:
 	static void config(CANJaguar *&jag, int id, bool brake=true, 
 			bool encoder=false, int encRevs=360, 
-			bool PID=false, int p=0, int i=0, int d=0) {
+			bool PID=false, double p=0, double i=0, double d=0) {
 
 		if(encoder) {
 			if(PID)

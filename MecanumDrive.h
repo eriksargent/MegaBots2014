@@ -1,7 +1,7 @@
 #include "WPILib.h"
 #include "JagControl.h"
 #include <CANJaguar.h>
-#include <math.h>
+#include <math.h> 
 
 #define pi 3.14159
 
