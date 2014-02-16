@@ -9,7 +9,7 @@
 class RobotControl : public IterativeRobot {
 private:
 	float cogArea, sonarR, sonarL, multiPotValue, shooterThrottle;		//define all these variables
-	double throttle, autoTime;
+	double throttle, autoTime, potZero;
 	bool upLimit, lowLimit, upTripped, align, flipDrive, flipPressed, armsUp;		//and these
 	void logs();		//create function called logs
 	void setShooters(double setPoint);		//create function called setShooters and a double variable setPoint
