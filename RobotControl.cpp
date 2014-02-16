@@ -198,18 +198,18 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	
 	//Drop
 	if(notKaden->GetRawButton(4)) {
-		if(multiPotValue < 2.25)
+		if((multiPotValue - potZero) < 2.25)
 			setShooters(.25);
 		else
 			setShooters(0);
 	}
 	//Upper limit
-	else if (multiPotValue >= 2.1 - ((notKaden->GetRawAxis(3) - 1)/-2)) {
+	else if ((multiPotValue - potZero) >= 2.1 - ((notKaden->GetRawAxis(3) - 1)/-2)) {
 		upLimit = 0;
 		upTripped = 1;
 	}
 	//lower limit
-	else if (multiPotValue <= .4) {
+	else if ((multiPotValue - potZero) <= .4) {
 		upLimit = 1;
 		upTripped = 0;
 	}
@@ -234,7 +234,14 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 		}
 	}
 
-
+	/*
+	* Potentiameter Zeroing
+	* Uses a limit switch to zero the potentiameter when arms are lowered
+	* failsafe in case of potentiameter slipping
+	*/
+	if (lowerLimit) {
+		potZero = multiPotValue;
+	}
 
 	/*
 	* Collector Control
