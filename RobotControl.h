@@ -21,7 +21,7 @@ private:
 	Joystick *control;		//define a joystick called control (kaden)
 	Joystick *notKaden;		//define a joystick called notKaden
 	
-	DigitalInput *upperLimit;		//define digital input as upperLimit
+	//DigitalInput *upperLimit;		//define digital input as upperLimit
 	DigitalInput *lowerLimit;		//define digital input as lowerLimit
 	
 	Compressor *compressor;
