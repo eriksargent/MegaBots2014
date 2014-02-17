@@ -4,7 +4,7 @@ RobotControl::RobotControl() : drive(2, 3, 4, 5) {
 	//First Joystick 
 	control = new Joystick(1);		//Drive and shooting joystick
 	notKaden = new Joystick(2);		//Throttle
-	upperLimit = new DigitalInput(1);		//Limit for top of throw
+	//upperLimit = new DigitalInput(1);		//Limit for top of throw
 	lowerLimit = new DigitalInput(2);		//Limit for bottom of throw
 	ultra1 = new AnalogChannel(1);		//Ultrasonic sensor pointer		
 	ultra2 = new AnalogChannel(2);		//US pointer 2
