@@ -12,6 +12,8 @@ private:
 	double throttle, autoTime, potZero;
 	bool upLimit, lowLimit, upTripped, align, flipDrive, flipPressed, prodsUp;		//and these
 	void logs();		//create function called logs
+	void returnToTop();
+	void setColor(char color);
 	void setShooters(double setPoint);		//create function called setShooters and a double variable setPoint
 	
 	time_t start;
