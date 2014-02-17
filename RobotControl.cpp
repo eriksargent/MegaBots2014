@@ -87,25 +87,47 @@ void RobotControl::DisabledPeriodic() {  //define function DisabledPeriodic
 
 }
 
+void RobotControl::setColor(char color) {
+	if (color = 'r') {
+		printf("\xB0");
+	}
+	else if (color = 'y') {
+		printf("\xB2");
+	}
+	else {
+		printf("\xB1");
+	}
+}
+
+
+void RobotControl::returnToTop() {
+	printf("\x01");
+}
+
 void RobotControl::logs() {
 	sonarR = ultra1->GetVoltage();		//set sonarR to the reading of the right ultrasonic sensor
 	sonarL = ultra2->GetVoltage();		//set sonarL to the reading of the left ultrasonic sensor
 	shooterThrottle = ((notKaden->GetRawAxis(3) - 1)/-2);
 	multiPotValue = multiPot->GetVoltage();		//set value of potentiometer variable to reading on the potentiometer
-	fprintf(stderr,"DT=%+2.5f ST=%+2.5f P=%+2.5f UpLimit=%s UpTripped=%s Align=%s\r",		//display a bunch of stuff
+	fprintf(stderr,"DT=%+2.5f ST=%+2.5f P=%+2.5f UpLimit=%s UpTripped=%s Align=%s\n",		//display a bunch of stuff
 			throttle, shooterThrottle, multiPotValue,
 			upLimit?"T":"F", upTripped?"T":"F",
 		    align?"T":"F");
 	
 	if ((potZero > .3) && (potZero <= .4) ) {
-		printf("WARNING: Potemtiometer starting to slip");
+		setColor('y');
+		printf("WARNING: Potemtiometer starting to slip\n");
 	}
 	else if ((potZero > .4) && (potZero <=.5)){
-		printf("WARNING: Potentiometer slipping");
+		setColor('y');
+		printf("WARNING: Potentiometer slipping\n");
 	}
 	else if (potZero > .5){
-		printf("WARNING: Potentiometer slipping fix ASAP");
+		setColor('r');
+		printf("WARNING: Potentiometer slipping fix ASAP\n");
 	} 
+	setColor('w');
+	returnToTop();
 }
 
 
