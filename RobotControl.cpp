@@ -64,7 +64,7 @@ void RobotControl::TeleopInit() {		//define function TeleopInit
 	upTripped = 0;		//set upTripped (limit switch variable) to 1
 	align = false;		//set align (sonar alignment) to false
 	flipDrive = false;
-	armsUp = true;
+	prodsUp = true;
 		
 	if(drive.disabled)		//if drive is disabled
 		drive.enableControl();		//enable drive
@@ -204,17 +204,17 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 			setShooters(0);
 	}
 	//Upper limit
-	else if ((multiPotValue - potZero) >= 2.1 - ((notKaden->GetRawAxis(3) - 1)/-2)) {
+	else if ((multiPotValue - potZero) >= 1.9 - ((notKaden->GetRawAxis(3) - 1)/-2)) {
 		upLimit = 0;
 		upTripped = 1;
 	}
 	//lower limit
-	else if ((multiPotValue - potZero) <= .4) {
+	else if ((multiPotValue - potZero) <= .1) {
 		upLimit = 1;
 		upTripped = 0;
 	}
 
-	lowLimit = (multiPotValue <= .4);
+	lowLimit = (multiPotValue <= .1);
 	//Lower the arms back down
 	if(!notKaden->GetRawButton(4)) {
 		if (upTripped)
@@ -222,7 +222,7 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 		else {
 			//Throw
 			if (notKaden->GetRawButton(1))
-				setShooters(((notKaden->GetRawAxis(3) - 1)/-2) * upLimit * armsUp);
+				setShooters(((notKaden->GetRawAxis(3) - 1)/-2) * upLimit * prodsUp);
 	
 			//retract
 			else if (notKaden->GetRawButton(5))
@@ -235,7 +235,7 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	}
 
 	/*
-	* Potentiameter Zeroing
+	* Potentiometer Zeroing
 	* Uses a limit switch to zero the potentiameter when arms are lowered
 	* failsafe in case of potentiameter slipping
 	*/
@@ -274,12 +274,12 @@ void RobotControl::TeleopPeriodic() {		//define function TeleopPeriodic
 	*/
 
 	if(notKaden->GetRawButton(6) || notKaden->GetRawButton(1) || notKaden->GetRawButton(4)) {
-		armsUp = true;
+		prodsUp = true;
 		prodSR->Set(true);
 		prodSL->Set(true);
 	}
 	if(notKaden->GetRawButton(7)) {
-		armsUp = false;
+		prodsUp = false;
 		prodSR->Set(false);
 		prodSL->Set(false);
 	}
