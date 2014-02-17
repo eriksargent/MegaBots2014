@@ -96,6 +96,16 @@ void RobotControl::logs() {
 			throttle, shooterThrottle, multiPotValue,
 			upLimit?"T":"F", upTripped?"T":"F",
 		    align?"T":"F");
+	
+	if ((potZero > .3) && (potZero <= .4) ) {
+		printf("WARNING: Potemtiometer starting to slip");
+	}
+	else if ((potZero > .4) && (potZero <=.5)){
+		printf("WARNING: Potentiometer slipping");
+	}
+	else if (potZero > .5){
+		printf("WARNING: Potentiometer slipping fix ASAP");
+	} 
 }
 
 
